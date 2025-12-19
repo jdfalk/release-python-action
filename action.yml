@@ -1,0 +1,139 @@
+# file: action.yml
+# version: 1.0.0
+# guid: 9c2e8f4a-6d1b-4e7c-a3f9-8e4d2a7b5c1f
+
+name: "Release Python Package"
+description: "Build and publish Python packages to PyPI"
+author: "jdfalk"
+
+branding:
+  icon: "package"
+  color: "yellow"
+
+inputs:
+  python-version:
+    description: "Python version to use"
+    required: false
+    default: "3.13"
+  package-dir:
+    description: "Directory containing setup.py or pyproject.toml"
+    required: false
+    default: "."
+  build-backend:
+    description: "Build backend (setuptools, poetry, hatchling)"
+    required: false
+    default: "setuptools"
+  run-tests:
+    description: "Run tests before publishing"
+    required: false
+    default: "true"
+  test-command:
+    description: "Command to run tests"
+    required: false
+    default: "pytest"
+  repository-url:
+    description: "PyPI repository URL"
+    required: false
+    default: "https://upload.pypi.org/legacy/"
+  pypi-token:
+    description: "PyPI API token"
+    required: true
+  skip-existing:
+    description: "Skip existing packages"
+    required: false
+    default: "false"
+  verify-metadata:
+    description: "Verify package metadata"
+    required: false
+    default: "true"
+
+outputs:
+  package-name:
+    description: "Name of the published package"
+    value: ${{ steps.build.outputs.package-name }}
+  package-version:
+    description: "Version of the published package"
+    value: ${{ steps.build.outputs.package-version }}
+  wheel-path:
+    description: "Path to built wheel file"
+    value: ${{ steps.build.outputs.wheel-path }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+      shell: bash
+
+    - name: Install build tools
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.package-dir }}
+      run: |
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        fi
+        if [ -f requirements-dev.txt ]; then
+          pip install -r requirements-dev.txt
+        fi
+
+    - name: Run tests
+      if: inputs.run-tests == 'true'
+      shell: bash
+      working-directory: ${{ inputs.package-dir }}
+      run: |
+        ${{ inputs.test-command }}
+
+    - name: Build package
+      id: build
+      shell: bash
+      working-directory: ${{ inputs.package-dir }}
+      run: |
+        python -m build
+
+        # Extract package info
+        WHEEL_FILE=$(ls dist/*.whl | head -n 1)
+        PKG_NAME=$(python -c "import re; print(re.match(r'dist/(.+?)-', '$WHEEL_FILE').group(1))")
+        PKG_VERSION=$(python -c "import re; print(re.match(r'dist/.+?-(.+?)-', '$WHEEL_FILE').group(1))")
+
+        echo "package-name=$PKG_NAME" >> $GITHUB_OUTPUT
+        echo "package-version=$PKG_VERSION" >> $GITHUB_OUTPUT
+        echo "wheel-path=$WHEEL_FILE" >> $GITHUB_OUTPUT
+
+    - name: Verify metadata
+      if: inputs.verify-metadata == 'true'
+      shell: bash
+      working-directory: ${{ inputs.package-dir }}
+      run: |
+        twine check dist/*
+
+    - name: Publish to PyPI
+      shell: bash
+      working-directory: ${{ inputs.package-dir }}
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ inputs.pypi-token }}
+        TWINE_REPOSITORY_URL: ${{ inputs.repository-url }}
+      run: |
+        SKIP_ARG=""
+        if [ "${{ inputs.skip-existing }}" == "true" ]; then
+          SKIP_ARG="--skip-existing"
+        fi
+        twine upload $SKIP_ARG dist/*
+
+    - name: Output summary
+      shell: bash
+      run: |
+        echo "## Python Package Release Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Package:** ${{ steps.build.outputs.package-name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Version:** ${{ steps.build.outputs.package-version }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Repository:** ${{ inputs.repository-url }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Python:** ${{ inputs.python-version }}" >> $GITHUB_STEP_SUMMARY
