@@ -114,6 +114,7 @@ runs:
       shell: bash
 
     - name: Publish to PyPI
+      if: inputs.pypi-token != 'fake-token-for-testing'
       working-directory: ${{ inputs.package-dir }}
       env:
         TWINE_USERNAME: __token__
