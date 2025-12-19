@@ -1,0 +1,86 @@
+# file: .github/workflows/ci.yml
+# version: 1.0.0
+# guid: c9d0e1f2-a3b4-5678-c234-789012345678
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate action.yml
+        run: |
+          if [ ! -f action.yml ]; then
+            echo "Error: action.yml not found"
+            exit 1
+          fi
+          echo "✅ action.yml validation passed"
+
+  test:
+    name: Test Action
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Create test project
+        run: |
+          mkdir -p test-project
+          cd test-project
+          cat > setup.py << 'EOF'
+          from setuptools import setup
+
+          setup(
+              name='test-package',
+              version='1.0.0',
+              packages=['test_package'],
+          )
+          EOF
+
+          mkdir test_package
+          cat > test_package/__init__.py << 'EOF'
+          __version__ = '1.0.0'
+          EOF
+
+      - name: Test action execution
+        uses: ./
+        with:
+          version: "1.0.0-test"
+          project-path: "./test-project"
+          package-name: "test-package"
+          upload-artifacts: "false"
+          dry-run: "true"
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run yamllint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: action.yml
