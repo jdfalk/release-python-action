@@ -67,11 +67,12 @@ jobs:
       - name: Test action execution
         uses: ./
         with:
-          version: "1.0.0-test"
-          project-path: "./test-project"
-          package-name: "test-package"
-          upload-artifacts: "false"
-          dry-run: "true"
+          python-version: "${{ matrix.python-version }}"
+          package-dir: "./test-project"
+          build-backend: "setuptools"
+          run-tests: "false"
+          pypi-token: "fake-token-for-testing"
+          skip-existing: "true"
 
   lint:
     name: Lint
