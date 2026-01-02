@@ -1,5 +1,5 @@
 <!-- file: TODO.md -->
-<!-- version: 1.0.0 -->
+<!-- version: 1.0.3 -->
 <!-- guid: 23ce6aac-e1aa-4268-9d18-620a70532518 -->
 
 # TODO - release-python-action
@@ -40,4 +40,8 @@ Handles Python package releases to PyPI and other registries
 
 ---
 
-*This TODO.md was automatically generated on 2026-01-02*
+<!-- markdownlint-disable MD036 -->
+
+This TODO.md was automatically generated on 2026-01-02.
+
+<!-- markdownlint-enable MD036 -->
