@@ -24,17 +24,17 @@ Build and publish Python packages to PyPI with automated testing and validation.
 
 ## Inputs
 
-| Input | Description | Required | Default |
-|-------|-------------|----------|---------|
-| `python-version` | Python version | No | `3.13` |
-| `package-dir` | Package directory | No | `.` |
-| `build-backend` | Build backend | No | `setuptools` |
-| `run-tests` | Run tests | No | `true` |
-| `test-command` | Test command | No | `pytest` |
-| `repository-url` | PyPI URL | No | PyPI production |
-| `pypi-token` | PyPI token | Yes | - |
-| `skip-existing` | Skip existing | No | `false` |
-| `verify-metadata` | Verify metadata | No | `true` |
+| Input             | Description       | Required | Default         |
+| ----------------- | ----------------- | -------- | --------------- |
+| `python-version`  | Python version    | No       | `3.13`          |
+| `package-dir`     | Package directory | No       | `.`             |
+| `build-backend`   | Build backend     | No       | `setuptools`    |
+| `run-tests`       | Run tests         | No       | `true`          |
+| `test-command`    | Test command      | No       | `pytest`        |
+| `repository-url`  | PyPI URL          | No       | PyPI production |
+| `pypi-token`      | PyPI token        | Yes      | -               |
+| `skip-existing`   | Skip existing     | No       | `false`         |
+| `verify-metadata` | Verify metadata   | No       | `true`          |
 
 ## License
 

@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ['3.11', '3.12', '3.13']
     steps:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -67,12 +67,12 @@ jobs:
       - name: Test action execution
         uses: ./
         with:
-          python-version: "${{ matrix.python-version }}"
-          package-dir: "./test-project"
-          build-backend: "setuptools"
-          run-tests: "false"
-          pypi-token: "fake-token-for-testing"
-          skip-existing: "true"
+          python-version: '${{ matrix.python-version }}'
+          package-dir: './test-project'
+          build-backend: 'setuptools'
+          run-tests: 'false'
+          pypi-token: 'fake-token-for-testing'
+          skip-existing: 'true'
 
   lint:
     name: Lint
