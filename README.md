@@ -1,6 +1,7 @@
 <!-- file: README.md -->
 <!-- version: 1.0.0 -->
 <!-- guid: 3e7a9f2d-4c8b-5e1a-8d6f-1c9e4a2b7d3e -->
+<!-- last-edited: 2026-01-19 -->
 
 # Release Python Package Action
 
